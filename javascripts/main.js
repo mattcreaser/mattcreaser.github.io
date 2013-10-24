@@ -19,6 +19,7 @@ getUserMedia({ onsuccess: function(stream) {
     user: { displayName: displayName }
   };
 
+  
   var src = URL.createObjectURL(stream);
   $('#localStream video').attr('src', src).get(0).volume = 0;
   $('#localStream div').text(displayName);
@@ -124,6 +125,7 @@ getUserMedia({ onsuccess: function(stream) {
 
     // Handle offers and answers sent from other users.
     var channel = lobby.channel(id);
+    thechannel = channel;
     channel.on('message', function(data, context) {
       console.log('Received message', data);
       if (data.offerSDP) {
@@ -184,7 +186,6 @@ getUserMedia({ onsuccess: function(stream) {
       }
 
       if (frame.pointables.length) {
-        console.log(after);
         channel.message({after: after}, function(err, msg, context) {
           if (err) {
             console.log('couldnt send message: ', err, msg);
@@ -216,18 +217,7 @@ getUserMedia({ onsuccess: function(stream) {
           .attr('autoplay', 'autoplay')
           .appendTo(wrapper);
 
-        var link = $('<a></a>').text('Freeze').click(function() {
-          var video = $(this).parent().prev()[0];
-          var w = video.videoWidth;
-          var h = video.videoHeight;
-
-          canvas.width = w;
-          canvas.height = h;
-
-          ctx.fillRect(0, 0, w, h);
-          ctx.drawImage(video, 0, 0, w, h);
-          ctx.globalCompositeOperation = 'destination-atop';
-        });
+        var link = $('<a></a>').text('Freeze').click(setImage);
 
         var nameDiv = $('<div></div>').text(user.displayName).append(link);
         wrapper.append(nameDiv);
@@ -235,8 +225,48 @@ getUserMedia({ onsuccess: function(stream) {
         $('#wait').hide();
       });
     }
+
+    var freezeChannel = lobby.channel('freeze');
+
+    freezeChannel.on('message', function(uid) {
+        if (uid == id) uid = 'localStream';
+        var video = $('#' + uid.replace(':', '\\:')).find('video')[0];
+
+        var w = video.videoWidth;
+        var h = video.videoHeight;
+
+        canvas.width = w;
+        canvas.height = h;
+
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(video, 0, 0, w, h);
+    });
+
+    function setImage() {
+      console.log(this);
+      var video = $(this).parent().prev()[0];
+      var id = $(this).parent().parent().attr('id');
+
+      var w = video.videoWidth;
+      var h = video.videoHeight;
+
+      canvas.width = w;
+      canvas.height = h;
+
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(video, 0, 0, w, h);
+
+      freezeChannel.message(id, function(err, msg, context) {
+        if (err) {
+          console.log('error setting image', err.message);
+        }
+        console.log('pushing freeze!!!', id);
+      });
+      ctx.globalCompositeOperation = 'destination-atop';
+    }
   });
 }});
+
 
 function onRemoteStreamEnded(id) {
   $('#' + id.replace(':', '\\:')).remove();
@@ -253,7 +283,8 @@ var controllerOptions = { enableGestures: false },
     ctx = canvas.getContext('2d'),
     before = {},
     after = {},
-    color = d3.scale.category20();
+    color = d3.scale.category20(),
+    thechannel = null;
 
 ctx.lineWidth = 5;
 ctx.translate(width/2, height/2);
