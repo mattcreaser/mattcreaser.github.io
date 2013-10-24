@@ -6,6 +6,10 @@
 
 /* Dependencies */
 
+window.onerror = function(msg, page, line) {
+  document.write(page + ':' + line + ': ' + msg);
+};
+
 var url = 'https://goinstant.net/mattcreaser/GoGlass';
 getUserMedia({ onsuccess: function(stream) {
 
