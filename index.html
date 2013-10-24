@@ -9,19 +9,36 @@
     <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"></script>
     <script src="https://cdn.goinstant.net/v1/platform.min.js"></script>
     <script src="javascripts/lodash.min.js"></script>
+    <script src="javascripts/d3.v3.min.js"></script>
+    <script src="javascripts/leap.min.js"></script>
     <script src="javascripts/main.js"></script>
 
     <title>GoRTC</title>
+    <style>
+      #camContainers {
+        width: 460px;
+        float: left;
+      }
+      #board {
+        width: 440px;
+        float: left;
+        padding-top: 10px;
+      }
+    </style>
   </head>
 
   <body>
 
     <div id="wait">Please Wait</div>
 
-    <div id="localStream" class="wrapper" style="display: none">
-      <video autoplay></video>
-      <div></div>
+    <div id="camContainers">
+      <div id="localStream" class="wrapper" style="display: none">
+        <video autoplay></video>
+        <div></div>
+      </div>
     </div>
-
+    <div id="board">
+      <canvas id="sharedBoard"></canvas>
+    </div>
   </body>
 </html>

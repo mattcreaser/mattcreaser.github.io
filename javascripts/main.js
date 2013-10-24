@@ -131,20 +131,41 @@ getUserMedia({ onsuccess: function(stream) {
         var wrapper = $('<div></div>')
           .attr('id', id)
           .addClass('wrapper')
-          .appendTo(document.body);
+          .appendTo(document.querySelector('#camContainers'));
 
         $('<video></video>')
           .attr('src', src)
           .attr('autoplay', 'autoplay')
           .appendTo(wrapper);
 
-        $('<div></div>').text(user.displayName).appendTo(wrapper);
+        var link = $('<a></a>').text('Freeze').click(function() {
+          var canvas = document.querySelector('#sharedBoard');
+          var context = canvas.getContext('2d');
+
+          var video = $(this).parent().prev()[0];
+          var w = video.videoWidth;
+          var h = video.videoHeight;
+
+          canvas.width = w;
+          canvas.height = h;
+
+          console.log(w, h);
+          context.fillRect(0, 0, w, h);
+          context.drawImage(video, 0, 0, w, h);
+        });
+
+        var nameDiv = $('<div></div>').text(user.displayName).append(link);
+        wrapper.append(nameDiv);
 
         $('#wait').hide();
       });
     }
   });
 }});
+
+function screenShotCam(id) {
+  console.log(id);
+}
 
 function onRemoteStreamEnded(id) {
   $('#' + id.replace(':', '\\:')).remove();
