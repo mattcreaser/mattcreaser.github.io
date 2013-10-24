@@ -6,14 +6,20 @@
 
 /* Dependencies */
 
-window.onerror = function(msg, page, line) {
-  document.write(page + ':' + line + ': ' + msg);
-};
+var displayName = sessionStorage.getItem('displayName');
+if (!displayName) {
+  displayName = window.prompt('Who dat?', 'Guest');
+  sessionStorage.setItem('displayName', displayName);
+}
 
 var url = 'https://goinstant.net/mattcreaser/GoGlass';
 getUserMedia({ onsuccess: function(stream) {
 
-  goinstant.connect(url, function (err, connection, lobby) {
+  var opts = {
+    user: { displayName: displayName }
+  };
+
+  goinstant.connect(url, opts, function (err, connection, lobby) {
     if (err) {
       //giStatus.connected(false);
       console.log('Error connecting to platform:', err);
@@ -107,20 +113,33 @@ getUserMedia({ onsuccess: function(stream) {
       }
       delete peers[user.id];
     });
+
+    function onRemoteStream(id, stream) {
+      lobby.user(id).get(function(err, user) {
+        if (err) {
+          console.error('Could not get user', err);
+          return;
+        }
+
+        var src = URL.createObjectURL(stream);
+
+        var wrapper = $('<div></div>')
+          .attr('id', id)
+          .addClass('wrapper')
+          .appendTo(document.body);
+
+        $('<video></video>')
+          .attr('src', src)
+          .attr('autoplay', 'autoplay')
+          .appendTo(wrapper);
+
+        wrapper.append('<div>' + user.displayName + '</div>');
+
+        $('#wait').hide();
+      });
+    }
   });
 }});
-
-function onRemoteStream(id, stream) {
-  var src = URL.createObjectURL(stream);
-
-  $('<video></video>')
-    .attr('id', id)
-    .attr('src', src)
-    .attr('autoplay', 'autoplay')
-    .appendTo(document.body);
-
-  $('#wait').hide();
-}
 
 function onRemoteStreamEnded(id) {
   $('#' + id.replace(':', '\\:')).remove();

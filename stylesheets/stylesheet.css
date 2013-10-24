@@ -1,5 +1,11 @@
-video {
+
+.wrapper {
   width: 200px;
   margin: 10px;
   border: 2px solid #ddd;
+  display: inline-box;
+}
+
+.wrapper div {
+  text-align: center;
 }
