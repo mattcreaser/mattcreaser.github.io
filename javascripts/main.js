@@ -20,7 +20,7 @@ getUserMedia({ onsuccess: function(stream) {
   };
 
   var src = URL.createObjectURL(stream);
-  $('#localStream video').attr('src', src);
+  $('#localStream video').attr('src', src).get(0).volume = 0;
   $('#localStream div').text(displayName);
   $('#localStream').show();
 
