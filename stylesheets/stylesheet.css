@@ -8,6 +8,7 @@ video {
   margin: 10px;
   border: 2px solid #ddd;
   display: inline-box;
+  float: left;
 }
 
 .wrapper div {
