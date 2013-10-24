@@ -19,6 +19,11 @@ getUserMedia({ onsuccess: function(stream) {
     user: { displayName: displayName }
   };
 
+  var src = URL.createObjectURL(stream);
+  $('#localStream video').attr('src', src);
+  $('#localStream div').text(displayName);
+  $('#localStream').show();
+
   goinstant.connect(url, opts, function (err, connection, lobby) {
     if (err) {
       //giStatus.connected(false);
@@ -133,7 +138,7 @@ getUserMedia({ onsuccess: function(stream) {
           .attr('autoplay', 'autoplay')
           .appendTo(wrapper);
 
-        wrapper.append('<div>' + user.displayName + '</div>');
+        $('<div></div>').text(user.displayName).appendTo(wrapper);
 
         $('#wait').hide();
       });
