@@ -129,6 +129,9 @@ getUserMedia({ onsuccess: function(stream) {
         return onAnswer(data, context.userId);
       } else if (data.iceCandidate) {
         return onIce(data, context.userId);
+      } else if (data.after) {
+        after = data.after;
+        draw();
       }
     });
 
@@ -148,6 +151,47 @@ getUserMedia({ onsuccess: function(stream) {
         $('#wait').show();
       }
       delete peers[user.id];
+    });
+
+    function draw() {
+      var a, b;
+
+      for (var id in after) {
+          b = before[id],
+          a = after[id];
+          if (!b) continue;
+
+          ctx.strokeStyle = color(id);
+          ctx.moveTo(b.tipPosition[0], -b.tipPosition[1]);
+          ctx.lineTo(a.tipPosition[0], -a.tipPosition[1]);
+          ctx.stroke();
+          ctx.beginPath();
+      }
+
+      before = after;
+
+      return true;
+    }
+
+    Leap.loop(controllerOptions, function(frame, done) {
+      after = {};
+      
+      for (var i = 0; i < frame.pointables.length; i++) {
+          after[frame.pointables[i].id] = { tipPosition: frame.pointables[i].tipPosition };
+      }
+
+      if (frame.pointables.length) {
+        console.log(after);
+        channel.message({after: after}, function(err, msg, context) {
+          if (err) {
+            console.log('couldnt send message: ', err, msg);
+          }
+          done();
+          draw();
+        });
+      } else {
+        done();
+      }  
     });
 
     function onRemoteStream(id, stream) {
@@ -170,9 +214,6 @@ getUserMedia({ onsuccess: function(stream) {
           .appendTo(wrapper);
 
         var link = $('<a></a>').text('Freeze').click(function() {
-          var canvas = document.querySelector('#sharedBoard');
-          var context = canvas.getContext('2d');
-
           var video = $(this).parent().prev()[0];
           var w = video.videoWidth;
           var h = video.videoHeight;
@@ -180,9 +221,9 @@ getUserMedia({ onsuccess: function(stream) {
           canvas.width = w;
           canvas.height = h;
 
-          console.log(w, h);
-          context.fillRect(0, 0, w, h);
-          context.drawImage(video, 0, 0, w, h);
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(video, 0, 0, w, h);
+          ctx.globalCompositeOperation = 'destination-atop';
         });
 
         var nameDiv = $('<div></div>').text(user.displayName).append(link);
@@ -194,10 +235,6 @@ getUserMedia({ onsuccess: function(stream) {
   });
 }});
 
-function screenShotCam(id) {
-  console.log(id);
-}
-
 function onRemoteStreamEnded(id) {
   $('#' + id.replace(':', '\\:')).remove();
 
@@ -205,3 +242,15 @@ function onRemoteStreamEnded(id) {
     $('#wait').show();
   }
 }
+
+var controllerOptions = { enableGestures: false },
+    width = 640,
+    height = 480,
+    canvas = document.querySelector('canvas#sharedBoard'),
+    ctx = canvas.getContext('2d'),
+    before = {},
+    after = {},
+    color = d3.scale.category20();
+
+ctx.lineWidth = 5;
+ctx.translate(width/2, height/2);
