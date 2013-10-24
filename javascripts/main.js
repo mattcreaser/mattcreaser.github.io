@@ -26,7 +26,6 @@ getUserMedia({ onsuccess: function(stream) {
 
   goinstant.connect(url, opts, function (err, connection, lobby) {
     if (err) {
-      //giStatus.connected(false);
       console.log('Error connecting to platform:', err);
       return;
     }
@@ -34,10 +33,40 @@ getUserMedia({ onsuccess: function(stream) {
     // Leave the lobby when leaving the page.
     window.onbeforeunload = function() { lobby.leave(); };
 
-    //giStatus.connected(true);
+    function addChatMsg(msg, uid) {
+      var text = users[uid] + ': ' + msg;
+      $('<div></div>').addClass('chatMsg')
+        .text(text)
+        .appendTo('#messages');
+    }
+
+    var chatChannel = lobby.channel('chat');
+    chatChannel.on('message', function(data, context) {
+      addChatMsg(data, context.userId);
+    });
+
+    $('#chat input').keypress(function(evt) {
+      if (evt.keyCode === 13) {
+        var msg = $(this).val();
+        $(this).val('');
+        chatChannel.message(msg);
+        addChatMsg(msg, id);
+      }
+    });
 
     var id = connection._user.id;
     var peers = {};
+    var users = {};
+
+    lobby.users.get(function(err, res) {
+      if (err) {
+        console.error('Could not fetch users', err);
+        return;
+      }
+      _.each(res, function(u, id) {
+        users[id] = u.displayName;
+      });
+    });
 
     function onOffer(data, userId) {
       console.log('Received an offer from', userId);
@@ -105,6 +134,8 @@ getUserMedia({ onsuccess: function(stream) {
 
     // Send an offer to any user that joins after me.
     lobby.on('join', function(user) {
+      users[user.id] = user.displayName;
+
       // Wait a couple seconds before sending an offer to
       // make sure they have the listener setup
       setTimeout(function() {
