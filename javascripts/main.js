@@ -37,7 +37,7 @@ getUserMedia({ onsuccess: function(stream) {
       var text = users[uid] + ': ' + msg;
       $('<div></div>').addClass('chatMsg')
         .text(text)
-        .appendTo('#messages');
+        .prependTo('#messages');
     }
 
     var chatChannel = lobby.channel('chat');
