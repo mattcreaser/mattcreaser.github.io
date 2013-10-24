@@ -1,6 +1,6 @@
 /* jshint browser:true */
 /* global goinstant, getUserMedia, console, URL, $ */
-/* global RTCPeerConnection, _ */
+/* global RTCPeerConnection, _, Leap, d3 */
 
 'use strict';
 
@@ -35,9 +35,12 @@ getUserMedia({ onsuccess: function(stream) {
 
     function addChatMsg(msg, uid) {
       var text = users[uid] + ': ' + msg;
-      $('<div></div>').addClass('chatMsg')
+      var div = $('<div></div>').addClass('chatMsg')
         .text(text)
-        .prependTo('#messages');
+        .appendTo('#messages');
+
+      var offset = div.offset();
+      $('#messages').scrollTop(offset.top);
     }
 
     var chatChannel = lobby.channel('chat');
@@ -175,7 +178,7 @@ getUserMedia({ onsuccess: function(stream) {
 
     Leap.loop(controllerOptions, function(frame, done) {
       after = {};
-      
+
       for (var i = 0; i < frame.pointables.length; i++) {
           after[frame.pointables[i].id] = { tipPosition: frame.pointables[i].tipPosition };
       }
@@ -191,7 +194,7 @@ getUserMedia({ onsuccess: function(stream) {
         });
       } else {
         done();
-      }  
+      }
     });
 
     function onRemoteStream(id, stream) {
