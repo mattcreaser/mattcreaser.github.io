@@ -11,6 +11,13 @@ input, button {
   text-align: center;
 }
 
+.name {
+  width: 85%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 li {
   list-style-position: none;
   border-top: 1px solid #aaa;
@@ -26,6 +33,6 @@ ul {
 
 html, body, #items {
   height: 100%;
-  font-size: 40px;
+  font-size: 25px;
   box-sizing: border-box;
 }
