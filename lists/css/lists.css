@@ -4,16 +4,19 @@ input, button {
 
 .delete {
   float: right;
-  color: #888;
-  margin-right: 20px;
+  color: #fff;
   cursor: pointer;
+  background-color: #333;
+  width: 15%;
+  text-align: center;
 }
 
 li {
-  list-style-position: inside;
+  list-style-position: none;
   border-top: 1px solid #aaa;
   margin: 0;
-  padding: 5px 0 5px 40px;
+  padding: 0;
+  padding-left: 5px;
 }
 
 ul {
@@ -23,4 +26,6 @@ ul {
 
 html, body, #items {
   height: 100%;
+  font-size: 40px;
+  box-sizing: border-box;
 }
