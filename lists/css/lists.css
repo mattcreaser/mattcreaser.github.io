@@ -3,12 +3,25 @@ input, button {
 }
 
 .delete {
+  display: none;
+}
+
+.selected .delete {
+  display: block;
   float: right;
   color: #fff;
   cursor: pointer;
   background-color: #333;
   width: 15%;
   text-align: center;
+}
+
+.selected .delete:active {
+  background-color: #EE9A49;
+}
+
+.selected {
+  background-color: #BCED91;
 }
 
 .name {
@@ -34,6 +47,6 @@ ul {
 
 html, body, #items {
   height: 100%;
-  font-size: 20px;
+  font-size: 22px;
   box-sizing: border-box;
 }

@@ -43,6 +43,19 @@ function init() {
     }
   });
 
+  var highlighted = null;
+  $('#items').on('click', 'li', function(e) {
+    $(highlighted).removeClass('selected');
+    if (this == highlighted) {
+      highlighted = null;
+      return;
+    }
+    
+    $(this).addClass('selected');
+    highlighted = this;
+    e.preventDefault();
+  });
+  
   $('#items').on('click', '.delete', function(e) {
     e.stopPropagation();
     var id = $(this).closest('li').attr('id');
