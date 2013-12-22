@@ -44,7 +44,7 @@ function init() {
   });
 
   var highlighted = null;
-  $('#items').on('click', 'li', function(e) {
+  $('#items').on('click touchstart', 'li', function(e) {
     $(highlighted).removeClass('selected');
     if (this == highlighted) {
       highlighted = null;
@@ -56,17 +56,24 @@ function init() {
     e.preventDefault();
   });
   
+  $('#items').on('touchstart', '.delete', function(e) {
+    e.stopPropagation();
+  });
+  
   $('#items').on('click', '.delete', function(e) {
     e.stopPropagation();
     var id = $(this).closest('li').attr('id');
     items.remove(id);
   });
 
-  $('#items').swipe({ swipeRight: function() {
-    items.destroy();
-    $('#lists').show();
-    $('#items').hide();
-  }});
+  $('#items').swipe({ 
+    swipeRight: function() {
+      items.destroy();
+      $('#lists').show();
+      $('#items').hide();
+    },
+    threshold: 125
+  });
 
   $('#lists input').keyup(function(e) {
     if (e.keyCode !== 13) { return; }
