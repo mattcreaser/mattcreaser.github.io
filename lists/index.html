@@ -5,29 +5,53 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="css/lists.css">
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css">
 
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.2.1/lodash.min.js"></script>
     <script src="https://cdn.goinstant.net/v1/platform.min.js"></script>
     <script src="js/goinstant.list.js"></script>
-    <script src="js/jquery.touchSwipe.min.js"></script>
     <script src="js/lists.js"></script>
   </head>
   <body>
 
-    <section id="lists">
-      <input type="text" class="form-control" placeholder="New List..." />
-    </section>
+    <div data-role="page" id="listsPage">
+      <ul data-role="listview" id="lists">
 
-    <section id="items" style="display:none">
-      <input type="text" class="form-control" placeholder="New Item..." />
-    </section>
+      </ul>
+    </div>
+
+    <div data-role="page" id="itemsPage">
+      <div data-role="header" data-position="fixed" data-theme="b">
+        <button id="itemsBack" class="ui-btn ui-btn-left ui-btn-inline ui-btn-icon-left ui-icon-arrow-l ui-corner-all">Back</button>
+        <a href="#itemsAddPopup" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-right ui-btn-inline ui-btn-icon-right ui-icon-plus ui-corner-all">Add</a>
+        <h2>Items</h2>
+      </div>
+      <div data-role="content">
+        <ul data-role="listview" id="items" data-split-icon="delete"></ul>
+      </div>
+
+      <div data-role="popup" id="itemsAddPopup" class="ui-corner-all">
+        <form class="ui-content">
+          <h3>Add Item</h3>
+          <input type="text" id="itemsAddName" placeholder="Item Name" />
+          <input type="text" id="itemsAddCategory" placeholder="Category" />
+          <button type="submit" class="ui-btn ui-btn-b ui-corner-all ui-icon-check ui-btn-icon-left">Add</button>
+        </form>
+      </div>
+    </div>
 
     <script type="text/template" id="listTemplate">
-      <li><span class="name">${ name }</span> <a href="#" class="delete">X</a></li>
+      <li><a href="#itemsPage">${ name }</a></li>
+    </script>
+
+    <script type="text/template" id="itemTemplate">
+      <li id="${ id }"><a href="#">${ name }</a><a href="#" class="delete">Delete</a></li>
+    </script>
+
+    <script type="text/template" id="dividerTemplate">
+      <li data-role="list-divider" id="${ id }">${ category }</li>
     </script>
 
   </body>
