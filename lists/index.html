@@ -6,20 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css">
+    <link rel="stylesheet" href="css/lists.css">
 
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.2.1/lodash.min.js"></script>
     <script src="https://cdn.goinstant.net/v1/platform.min.js"></script>
-    <script src="js/goinstant.list.js"></script>
     <script src="js/lists.js"></script>
   </head>
   <body>
 
     <div data-role="page" id="listsPage">
-      <ul data-role="listview" id="lists">
+      <div data-role="header" data-position="fixed" data-theme="b">
+        <h2>Lists</h2>
+        <button id="listsEdit" class="ui-btn ui-btn-left ui-btn-inline ui-btn-icon-right ui-icon-edit ui-corner-all">Edit</button>
+        <button id="listsDone" class="ui-btn ui-btn-left ui-btn-inline ui-btn-icon-right ui-icon-check ui-corner-all ui-btn-a">Done</button>
+        <a href="#listsAddPopup" data-rel="popup" data-position-to="window" id="listsAdd" class="ui-btn ui-btn-right ui-btn-inline ui-btn-icon-right ui-icon-plus ui-corner-all">Add</a>
+      </div>
+      <div data-role="content">
+        <ul data-role="listview" id="lists"></ul>
+      </div>
 
-      </ul>
+      <div data-role="popup" id="listsAddPopup" class="ui-corner-all">
+        <form action="" class="ui-content">
+          <h3>Add List</h3>
+          <input type="text" id="listsAddName" placeholder="List Name" />
+          <button type="submit" class="ui-btn ui-btn-b ui-corner-all ui-icon-check ui-btn-icon-left">Add</button>
+        </form>
+      </div>
     </div>
 
     <div data-role="page" id="itemsPage">
@@ -33,7 +47,7 @@
       </div>
 
       <div data-role="popup" id="itemsAddPopup" class="ui-corner-all">
-        <form class="ui-content">
+        <form action="" class="ui-content">
           <h3>Add Item</h3>
           <input type="text" id="itemsAddName" placeholder="Item Name" />
           <input type="text" id="itemsAddCategory" placeholder="Category" />
@@ -43,7 +57,7 @@
     </div>
 
     <script type="text/template" id="listTemplate">
-      <li><a href="#itemsPage">${ name }</a></li>
+<li id="${ id }"><a href="#itemsPage">${ name }</a></li>
     </script>
 
     <script type="text/template" id="itemTemplate">

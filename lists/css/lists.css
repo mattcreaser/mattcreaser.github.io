@@ -1,52 +1,8 @@
-input {
-  margin-bottom: 10px;
+.editing li .ui-btn-icon-right:after {
+  background-color: rgba(255, 0, 0, 0.5);
 }
 
-.delete {
+#listsDone {
   display: none;
 }
 
-.selected .delete {
-  display: block;
-  float: right;
-  color: #fff;
-  cursor: pointer;
-  background-color: #333;
-  width: 15%;
-  text-align: center;
-}
-
-.selected .delete:active {
-  background-color: #EE9A49;
-}
-
-.selected {
-  background-color: #BCED91;
-}
-
-.name {
-  width: 85%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  float: left;
-}
-
-li {
-  list-style-position: none;
-  border-top: 1px solid #aaa;
-  margin: 0;
-  padding: 0;
-  padding-left: 5px;
-}
-
-ul {
-  padding: 0;
-  border-bottom: 1px solid #aaa;
-}
-
-html, body {
-  height: 100%;
-  font-size: 22px;
-  box-sizing: border-box;
-}

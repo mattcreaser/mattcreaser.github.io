@@ -23,15 +23,22 @@ var listsPage = {
   template: null,
   listview: null,
   key: null,
+  editing: false,
 
   init: function(room) {
-    _.bindAll(this, 'populate', 'appendList');
+    _.bindAll(this);
 
     this.template = $('#listTemplate').html();
     this.listview = $('#lists');
 
     this.key = room.key('lists');
     this.key.get(this.populate);
+    this.key.on('add', { local: true, listener: this.onAdd });
+    this.key.on('remove', { local: true, bubble: true, listener: this.onRemove });
+
+    $('#listsEdit').click(this.startEdit);
+    $('#listsDone').click(this.doneEdit);
+    $('#listsAddPopup form').submit(this.addList);
   },
 
   populate: function(err, lists) {
@@ -43,10 +50,76 @@ var listsPage = {
   },
 
   appendList: function(list, id) {
-    var html = _.template(this.template, list);
+    list.id = id;
+    var html = _.template(this.template, { id: id, name: list.name });
     $(html).appendTo(this.listview).find('a')
-           .click(function() { itemsPage.show(id); });
+           .click(this.onClick.bind(this, list));
 
+  },
+
+  onAdd: function(list, context) {
+    var id = context.addedKey.substr(context.addedKey.lastIndexOf('/') + 1);
+    this.appendList(list, id);
+    this.listview.listview('refresh');
+  },
+
+  onRemove: function(value, context) {
+    var id = context.key.substr(context.key.lastIndexOf('/') + 1);
+    $('#' + id).remove();
+    this.listview.listview('refresh');
+  },
+
+  onClick: function(list, e) {
+    // If in editing mode, delete the list.
+    if (this.editing) {
+      // Remove the list and all its items.
+      this.key.key(list.id).remove();
+      this.key.room().key('items').key(list.id).remove();
+      return e.preventDefault();
+    }
+
+    // Not editing, switch to the items page for this list.
+    itemsPage.show(list);
+  },
+
+  startEdit: function(e) {
+    e.preventDefault();
+    this.editing = true;
+
+    $('#listsPage').addClass('editing');
+    this.listview.listview('option', 'icon', 'delete').find('a')
+    .removeClass('ui-icon-carat-r').addClass('ui-icon-delete');
+    $('#listsEdit').hide();
+    $('#listsAdd').hide();
+    $('#listsDone').show();
+  },
+
+  doneEdit: function(e) {
+    e.preventDefault();
+    this.editing = false;
+
+    $('#listsPage').removeClass('editing');
+    this.listview.listview('option', 'icon', 'carat-r').find('a')
+    .removeClass('ui-icon-delete').addClass('ui-icon-carat-r');
+    $('#listsEdit').show();
+    $('#listsAdd').show();
+    $('#listsDone').hide();
+  },
+
+  addList: function(e) {
+    e.preventDefault();
+
+    var list = {
+      name: $('#listsAddName').val()
+    };
+
+    $('#listsAddName').val('');
+
+    $.mobile.loading('show');
+    this.key.add(list, function() {
+      $.mobile.loading('hide');
+      $('#listsAddPopup').popup('close');
+    });
   }
 
 };
@@ -71,8 +144,9 @@ var itemsPage = {
     $('#itemsAddPopup form').submit(this.addItem);
   },
 
-  show: function(id) {
-    this.key = this.key.room().key('items/' + id);
+  show: function(list) {
+    $('#itemsPage [data-role=header] h2').text(list.name);
+    this.key = this.key.room().key('items/' + list.id);
     this.key.get(this.populate);
     this.key.on('add', { local: true, listener: this.onAdd });
     this.key.on('remove', { bubble: true, local: true, listener: this.onRemove });
@@ -95,6 +169,8 @@ var itemsPage = {
   appendItem: function(item, id) {
     // Store the id in the item so that we can find its element later.
     item.id = id;
+
+    item.category = item.category || 'Uncategorized';
 
     var index = _.sortedIndex(this.items, item, 'category');
     var html = _.template(this.template, { id: id, name: item.name });
@@ -157,16 +233,15 @@ var itemsPage = {
     // Create the item.
     var item = {
       name: $('#itemsAddName').val(),
-      category: $('#itemsAddCategory').val() || "Uncategorized"
+      category: $('#itemsAddCategory').val()
     };
 
     // Clear the form inputs for the next addition.
     $('#itemsAddName').val('');
-    $('#itemsAddCategory').val('');
 
     // Add it to GoInstant. Show the spinner while adding.
     $.mobile.loading('show');
-    this.key.add(item, function() {
+    this.key.add(item).then(function() {
       $.mobile.loading('hide');
       $('#itemsAddPopup').popup('close');
     });
@@ -180,7 +255,7 @@ var itemsPage = {
 
     // Remove it from GoInstant. Show the spinner while removing.
     $.mobile.loading('show');
-    this.key.key(id).remove(function() { $.mobile.loading('hide'); });
+    this.key.key(id).remove().then(function() { $.mobile.loading('hide'); });
   },
 
   toId: function(category) {
