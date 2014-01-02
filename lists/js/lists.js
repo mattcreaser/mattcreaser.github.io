@@ -52,8 +52,9 @@ var listsPage = {
   appendList: function(list, id) {
     list.id = id;
     var html = _.template(this.template, { id: id, name: list.name });
+    var self = this;
     $(html).appendTo(this.listview).find('a')
-           .click(this.onClick.bind(this, list));
+           .click(function(e) { self.onClick(list, e); });
 
   },
 
