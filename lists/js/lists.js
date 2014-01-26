@@ -1,5 +1,6 @@
 /*jshint browser:true*/
-/*global DynamicList */
+/*global console */
+'use strict';
 
 var goinstant = window.goinstant;
 var _ = window._;
@@ -33,8 +34,8 @@ var listsPage = {
 
     this.key = room.key('lists');
     this.key.get(this.populate);
-    this.key.on('add', { local: true, listener: this.onAdd });
-    this.key.on('remove', { local: true, bubble: true, listener: this.onRemove });
+    this.key.on('add', { local: true }, this.onAdd);
+    this.key.on('remove', { local: true, bubble: true }, this.onRemove);
 
     $('#listsEdit').click(this.startEdit);
     $('#listsDone').click(this.doneEdit);
@@ -148,8 +149,8 @@ var itemsPage = {
     $('#itemsPage [data-role=header] h2').text(list.name);
     this.key = this.key.room().key('items/' + list.id);
     this.key.get(this.populate);
-    this.key.on('add', { local: true, listener: this.onAdd });
-    this.key.on('remove', { bubble: true, local: true, listener: this.onRemove });
+    this.key.on('add', { local: true }, this.onAdd);
+    this.key.on('remove', { bubble: true, local: true }, this.onRemove);
     this.categories = [];
     this.items = [];
   },
@@ -176,11 +177,11 @@ var itemsPage = {
     var html = _.template(this.template, { id: id, name: item.name });
 
     // Add a category header if necessary.
-    var category = $('#' + this.toId(item.category));
-    if (category.size() === 0) {
-      var vars = { id: this.toId(item.category), category: item.category };
+    var categoryId = this.toId(item.category);
+    if (!_.find(this.categories, { id: categoryId })) {
+      var vars = { id: categoryId, category: item.category };
       html = _.template(this.categoryTemplate, vars) + html;
-      this.categories.push(item.category);
+      this.categories.push(vars);
     }
 
     // Figure out where to insert the new html.
@@ -219,7 +220,9 @@ var itemsPage = {
     if (li.prev().attr('data-role') === 'list-divider' &&
         (li.next().size() === 0 ||
          li.next().attr('data-role') === 'list-divider')) {
+      var categoryId = li.prev().attr('id');
       li.prev().remove();
+      this.categories = _.reject(this.categories, { id: categoryId });
     }
 
     // Remove the item from the view.
@@ -259,7 +262,7 @@ var itemsPage = {
   },
 
   toId: function(category) {
-    return category.replace(/\s/g, '');
+    return category.replace(/[^A-Za-z0-9\-\._:]/g, '.');
   }
 
 };
