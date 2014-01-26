@@ -52,9 +52,8 @@ var listsPage = {
   appendList: function(list, id) {
     list.id = id;
     var html = _.template(this.template, { id: id, name: list.name });
-    var self = this;
     $(html).appendTo(this.listview).find('a')
-           .click(function(e) { self.onClick(list, e); });
+           .click(_.bind(this.clickHandler, this, list));
 
   },
 
@@ -70,7 +69,7 @@ var listsPage = {
     this.listview.listview('refresh');
   },
 
-  onClick: function(list, e) {
+  clickHandler: function(list, e) {
     // If in editing mode, delete the list.
     if (this.editing) {
       // Remove the list and all its items.
