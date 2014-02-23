@@ -1,4 +1,5 @@
-.editing li .ui-btn-icon-right:after {
+.editing li .ui-btn-icon-right:after,
+#items .ui-btn-icon-right:after {
   background-color: rgba(255, 0, 0, 0.5);
 }
 

@@ -189,7 +189,7 @@ var itemsPage = {
     var before = this.items[index];
 
     var toInsert = $(html);
-    toInsert.find('.delete').click(this.removeItem);
+    toInsert.find('a').click(this.promptForRemoval);
 
     if (before && before.category === item.category) {
       toInsert.insertBefore('#' + before.id);
@@ -250,15 +250,27 @@ var itemsPage = {
     });
   },
 
-  removeItem: function(e) {
+  promptForRemoval: function(e) {
     e.preventDefault();
 
-    // Find the id of the remove item.
+    // Replace the click handler
     var id = $(e.target).closest('li').attr('id');
+    var self = this;
+    $('#itemsRemoveSubmit').off('click').on('click', function(e) {
+      e.preventDefault();
+      $.mobile.loading('show');
+      self.key.key(id).remove().then(function() {
+        $.mobile.loading('hide');
+        $('#itemsRemoveConfirm').popup('close');
+      });
+    });
 
-    // Remove it from GoInstant. Show the spinner while removing.
-    $.mobile.loading('show');
-    this.key.key(id).remove().then(function() { $.mobile.loading('hide'); });
+    // Set the name in the confirmation popup.
+    var item = _.find(this.items, { id: id });
+    $('#itemsRemoveName').text(item.name);
+
+    // Open the confirm popup
+    $('#itemsRemoveConfirm').popup('open');
   },
 
   toId: function(category) {
@@ -267,3 +279,6 @@ var itemsPage = {
 
 };
 
+var categoryPage = {
+
+};
