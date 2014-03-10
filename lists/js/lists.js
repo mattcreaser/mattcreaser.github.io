@@ -76,6 +76,7 @@ var listsPage = {
       // Remove the list and all its items.
       this.key.key(list.id).remove();
       this.key.room().key('items').key(list.id).remove();
+      this.key.room().key('categories').key(list.id).remove();
       return e.preventDefault();
     }
 
@@ -130,7 +131,7 @@ var itemsPage = {
   categoryTemplate: null,
   listview: null,
   key: null,
-  categories: [],
+  categories: {},
   items: [],
 
   init: function(room) {
@@ -138,25 +139,43 @@ var itemsPage = {
 
     this.key = room.key('items');
     this.listview = $('#items');
+    this.categorySelect = $('#itemsAddCategory');
     this.template = $('#itemTemplate').html();
     this.categoryTemplate = $('#dividerTemplate').html();
 
     $('#itemsBack').click(this.hide);
-    $('#itemsAddPopup form').submit(this.addItem);
+    $('#itemsAddPanel form').submit(this.addItem);
+    $('#categoriesAddPanel form').submit(this.addCategory);
+
+    $('#itemsAddPanel').on('panelbeforeopen', function() {
+      $('#itemsMenuPopup').popup('close');
+    });
+    $('#categoriesAddPanel').on('panelbeforeopen', function() {
+      $('#itemsMenuPopup').popup('close');
+    });
   },
 
   show: function(list) {
     $('#itemsPage [data-role=header] h2').text(list.name);
     this.key = this.key.room().key('items/' + list.id);
+    this.categoryKey = this.key.room().key('categories/' + list.id);
+
+    this.categoryKey.get(this.populateCategories);
+    this.categoryKey.on('add', { local: true }, this.onCategoryAdd);
+    this.categoryKey.on('remove', { bubble: true, local: true },
+                        this.onCategoryRemove);
+
     this.key.get(this.populate);
-    this.key.on('add', { local: true }, this.onAdd);
-    this.key.on('remove', { bubble: true, local: true }, this.onRemove);
+    this.key.on('add', { local: true }, this.onItemAdd);
+    this.key.on('remove', { bubble: true, local: true }, this.onItemRemove);
+
     this.categories = [];
     this.items = [];
   },
 
   hide: function() {
     this.key.off();
+    this.categoryKey.off();
     $('body').pagecontainer('change', '#listsPage');
   },
 
@@ -165,6 +184,13 @@ var itemsPage = {
     this.listview.empty();
     _.each(items, this.appendItem);
     this.listview.listview('refresh');
+  },
+
+  populateCategories: function(err, categories) {
+    if (err) { return console.error(err); }
+    this.categorySelect.empty();
+    _.each(categories, this.appendCategory);
+    this.categorySelect.selectmenu('refresh');
   },
 
   appendItem: function(item, id) {
@@ -202,13 +228,20 @@ var itemsPage = {
     this.items.splice(index, 0, item);
   },
 
-  onAdd: function(item, context) {
+  appendCategory: function(category, id) {
+    this.categories[id] = category;
+    $('<option></option>').attr('id', id).val(category.name)
+                  .text(category.name).appendTo(this.categorySelect);
+    this.categorySelect.selectmenu('refresh');
+  },
+
+  onItemAdd: function(item, context) {
     var id = context.addedKey.substr(context.addedKey.lastIndexOf('/') + 1);
     this.appendItem(item, id);
     this.listview.listview('refresh');
   },
 
-  onRemove: function(value, context) {
+  onItemRemove: function(value, context) {
     var id = context.key.substr(context.key.lastIndexOf('/') + 1);
     var li = $('#' + id);
 
@@ -230,6 +263,15 @@ var itemsPage = {
     this.listview.listview('refresh');
   },
 
+  onCategoryAdd: function(category, context) {
+    var id = context.addedKey.substr(context.addedKey.lastIndexOf('/') + 1);
+    this.appendCategory(category, id);
+  },
+
+  onCategoryRemove: function(value, context) {
+    var id = context.key.substr(context.key.lastIndexOf('/') + 1);
+  },
+
   addItem: function(e) {
     e.preventDefault();
 
@@ -246,7 +288,25 @@ var itemsPage = {
     $.mobile.loading('show');
     this.key.add(item).then(function() {
       $.mobile.loading('hide');
-      $('#itemsAddPopup').popup('close');
+      $('#itemsAddPanel').panel('close');
+    });
+  },
+
+  addCategory: function(e) {
+    e.preventDefault();
+
+    var category = {
+      name: $('#categoriesAddName').val()
+    };
+
+    // Clear the form input for the next addition.
+    $('#categoriesAddName').val('');
+
+    // Add it to GoInstant. Show the spinner while adding.
+    $.mobile.loading('show');
+    this.categoryKey.add(category).then(function() {
+      $.mobile.loading('hide');
+      $('#categoriesAddPanel').panel('close');
     });
   },
 
@@ -276,9 +336,5 @@ var itemsPage = {
   toId: function(category) {
     return category.replace(/[^A-Za-z0-9\-\._:]/g, '.');
   }
-
-};
-
-var categoryPage = {
 
 };

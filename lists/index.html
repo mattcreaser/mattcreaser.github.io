@@ -3,8 +3,9 @@
   <head>
     <title>Lists</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
 
     <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css">
     <link rel="stylesheet" href="css/lists.css">
@@ -40,24 +41,40 @@
     <div data-role="page" id="itemsPage">
       <div data-role="header" data-position="fixed" data-theme="b">
         <button id="itemsBack" class="ui-btn ui-btn-left ui-btn-inline ui-btn-icon-left ui-icon-arrow-l ui-corner-all">Back</button>
-        <a href="#itemsAddPopup" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-right ui-btn-inline ui-btn-icon-right ui-icon-plus ui-corner-all">Add</a>
+        <a href="#itemsMenuPopup" data-rel="popup" class="ui-btn ui-btn-right ui-btn-inline ui-icon-bars ui-btn-icon-notext ui-corner-all">Menu</a>
         <h2>Items</h2>
       </div>
       <div data-role="content">
         <ul data-role="listview" id="items" data-icon="delete"></ul>
       </div>
 
-      <div data-role="popup" id="itemsAddPopup" class="ui-corner-all">
+      <div data-role="popup" id="itemsMenuPopup" class="ui-corner-all" data-theme="b">
+        <ul data-role="listview" data-inset="true">
+          <li><a href="#itemsAddPanel">Add Item</a></li>
+          <li><a href="#categoriesAddPanel">Add Category</a></li>
+        </ul>
+      </div>
+
+      <div data-role="panel" id="itemsAddPanel" class="ui-panel" data-position="right" data-display="overlay">
         <form action="" class="ui-content">
           <h3>Add Item</h3>
           <input type="text" id="itemsAddName" placeholder="Item Name" />
-          <input type="text" id="itemsAddCategory" placeholder="Category" />
+          <select id="itemsAddCategory">
+          </select>
           <button type="submit" class="ui-btn ui-btn-b ui-corner-all ui-icon-check ui-btn-icon-left">Add</button>
         </form>
       </div>
 
+      <div data-role="panel" id="categoriesAddPanel" class="ui-panel" data-position="right" data-display="overlay">
+        <form action="" class="ui-content">
+          <h3>Add Category</h3>
+          <input type="text" id="categoriesAddName" placeholder="Category Name" />
+          <button type="submit" class="ui btn ui-btn-b ui-corner-all ui-icon-check ui-btn-icon-left">Add</button>
+        </form>
+      </div>
+
       <div data-role="popup" id="itemsRemoveConfirm" class="ui-content ui-corner-all">
-        <h3>Remove <span id="itemsRemoveName"></span>?</h3>
+        <h3>Remove Item: <span id="itemsRemoveName"></span>?</h3>
         <button id="itemsRemoveSubmit" class="ui-btn ui-btn-b ui-corner-all ui-icon-check">Remove</button>
         <a href="#" class="ui-btn ui-corner-all ui-icon-back" data-rel="back">Cancel</a>
       </div>
