@@ -2,7 +2,7 @@
 /*global console */
 'use strict';
 
-var goinstant = window.goinstant;
+var Firebase = window.Firebase;
 var _ = window._;
 var $ = window.$;
 
@@ -11,43 +11,32 @@ $.mobile.pushStateEnabled = false;
 
 $(function() {
   $.mobile.loading('show');
-  var url = 'https://goinstant.net/mattcreaser/lists';
-  goinstant.connect(url, function(err, connection, lobby) {
-    if (err) { return console.error('Could not connect', err); }
-    listsPage.init(lobby);
-    itemsPage.init(lobby);
-  });
+  var url = 'https://burning-fire-8069.firebaseio.com/';
+  var ref = new Firebase(url);
+  listsPage.init(ref);
+  itemsPage.init(ref);
 });
 
 
 var listsPage = {
   template: null,
   listview: null,
-  key: null,
+  ref: null,
   editing: false,
 
-  init: function(room) {
+  init: function(baseRef) {
     _.bindAll(this);
 
     this.template = $('#listTemplate').html();
     this.listview = $('#lists');
 
-    this.key = room.key('lists');
-    this.key.get(this.populate);
-    this.key.on('add', { local: true }, this.onAdd);
-    this.key.on('remove', { local: true, bubble: true }, this.onRemove);
+    this.ref = baseRef.child('lists');
+    this.ref.on('child_added', this.onAdd);
+    this.ref.on('child_removed', this.onRemove);
 
     $('#listsEdit').click(this.startEdit);
     $('#listsDone').click(this.doneEdit);
     $('#listsAddPopup form').submit(this.addList);
-  },
-
-  populate: function(err, lists) {
-    if (err) { return console.error(err); }
-    $.mobile.loading('hide');
-
-    _.each(lists, this.appendList);
-    this.listview.listview('refresh');
   },
 
   appendList: function(list, id) {
@@ -58,14 +47,16 @@ var listsPage = {
 
   },
 
-  onAdd: function(list, context) {
-    var id = context.addedKey.substr(context.addedKey.lastIndexOf('/') + 1);
+  onAdd: function(snapshot) {
+    $.mobile.loading('hide');
+    var id = snapshot.name();
+    var list = snapshot.val();
     this.appendList(list, id);
     this.listview.listview('refresh');
   },
 
-  onRemove: function(value, context) {
-    var id = context.key.substr(context.key.lastIndexOf('/') + 1);
+  onRemove: function(snapshot) {
+    var id = snapshot.name();
     $('#' + id).remove();
     this.listview.listview('refresh');
   },
@@ -74,9 +65,9 @@ var listsPage = {
     // If in editing mode, delete the list.
     if (this.editing) {
       // Remove the list and all its items.
-      this.key.key(list.id).remove();
-      this.key.room().key('items').key(list.id).remove();
-      this.key.room().key('categories').key(list.id).remove();
+      this.ref.child(list.id).remove();
+      this.ref.parent().child('items').child(list.id).remove();
+      this.ref.parent().child('categories').child(list.id).remove();
       return e.preventDefault();
     }
 
@@ -118,7 +109,7 @@ var listsPage = {
     $('#listsAddName').val('');
 
     $.mobile.loading('show');
-    this.key.add(list, function() {
+    this.ref.push(list, function() {
       $.mobile.loading('hide');
       $('#listsAddPopup').popup('close');
     });
@@ -130,14 +121,18 @@ var itemsPage = {
   template: null,
   categoryTemplate: null,
   listview: null,
-  key: null,
+
+  baseRef: null,
+  ref: null,
+  categoryRef: null,
+
   categories: {},
   items: [],
 
-  init: function(room) {
+  init: function(baseRef) {
     _.bindAll(this);
 
-    this.key = room.key('items');
+    this.baseRef = baseRef.child('items');
     this.listview = $('#items');
     this.categorySelect = $('#itemsAddCategory');
     this.template = $('#itemTemplate').html();
@@ -157,40 +152,30 @@ var itemsPage = {
 
   show: function(list) {
     $('#itemsPage [data-role=header] h2').text(list.name);
-    this.key = this.key.room().key('items/' + list.id);
-    this.categoryKey = this.key.room().key('categories/' + list.id);
+    this.ref = this.baseRef.child(list.id);
+    this.categoryRef = this.baseRef.parent().child('categories/' + list.id);
 
-    this.categoryKey.get(this.populateCategories);
-    this.categoryKey.on('add', { local: true }, this.onCategoryAdd);
-    this.categoryKey.on('remove', { bubble: true, local: true },
-                        this.onCategoryRemove);
+    this.categoryRef.on('child_added', this.onCategoryAdd);
+    this.categoryRef.on('child_removed', this.onCategoryRemove);
 
-    this.key.get(this.populate);
-    this.key.on('add', { local: true }, this.onItemAdd);
-    this.key.on('remove', { bubble: true, local: true }, this.onItemRemove);
+    this.ref.on('child_added', this.onItemAdd);
+    this.ref.on('child_removed', this.onItemRemove);
 
     this.categories = [];
     this.items = [];
   },
 
   hide: function() {
-    this.key.off();
-    this.categoryKey.off();
-    $('body').pagecontainer('change', '#listsPage');
-  },
+    this.ref.off();
+    this.categoryRef.off();
 
-  populate: function(err, items) {
-    if (err) { return console.error(err); }
-    this.listview.empty();
-    _.each(items, this.appendItem);
-    this.listview.listview('refresh');
-  },
-
-  populateCategories: function(err, categories) {
-    if (err) { return console.error(err); }
     this.categorySelect.empty();
-    _.each(categories, this.appendCategory);
     this.categorySelect.selectmenu('refresh');
+
+    this.listview.empty();
+    this.listview.listview('refresh');
+
+    $('body').pagecontainer('change', '#listsPage');
   },
 
   appendItem: function(item, id) {
@@ -235,14 +220,15 @@ var itemsPage = {
     this.categorySelect.selectmenu('refresh');
   },
 
-  onItemAdd: function(item, context) {
-    var id = context.addedKey.substr(context.addedKey.lastIndexOf('/') + 1);
+  onItemAdd: function(snapshot) {
+    var id = snapshot.name();
+    var item = snapshot.val();
     this.appendItem(item, id);
     this.listview.listview('refresh');
   },
 
-  onItemRemove: function(value, context) {
-    var id = context.key.substr(context.key.lastIndexOf('/') + 1);
+  onItemRemove: function(snapshot) {
+    var id = snapshot.name();
     var li = $('#' + id);
 
     // Remove the item from our cached list.
@@ -263,13 +249,14 @@ var itemsPage = {
     this.listview.listview('refresh');
   },
 
-  onCategoryAdd: function(category, context) {
-    var id = context.addedKey.substr(context.addedKey.lastIndexOf('/') + 1);
+  onCategoryAdd: function(snapshot) {
+    var id = snapshot.name();
+    var category = snapshot.val();
     this.appendCategory(category, id);
   },
 
-  onCategoryRemove: function(value, context) {
-    var id = context.key.substr(context.key.lastIndexOf('/') + 1);
+  onCategoryRemove: function(snapshot) {
+    var id = snapshot.name();
   },
 
   addItem: function(e) {
@@ -284,9 +271,9 @@ var itemsPage = {
     // Clear the form inputs for the next addition.
     $('#itemsAddName').val('');
 
-    // Add it to GoInstant. Show the spinner while adding.
+    // Add it to Firebase. Show the spinner while adding.
     $.mobile.loading('show');
-    this.key.add(item).then(function() {
+    this.ref.push(item, function() {
       $.mobile.loading('hide');
       $('#itemsAddPanel').panel('close');
     });
@@ -302,9 +289,9 @@ var itemsPage = {
     // Clear the form input for the next addition.
     $('#categoriesAddName').val('');
 
-    // Add it to GoInstant. Show the spinner while adding.
+    // Add it to Firebase. Show the spinner while adding.
     $.mobile.loading('show');
-    this.categoryKey.add(category).then(function() {
+    this.categoryRef.push(category, function() {
       $.mobile.loading('hide');
       $('#categoriesAddPanel').panel('close');
     });
@@ -319,7 +306,7 @@ var itemsPage = {
     $('#itemsRemoveSubmit').off('click').on('click', function(e) {
       e.preventDefault();
       $.mobile.loading('show');
-      self.key.key(id).remove().then(function() {
+      self.ref.child(id).remove(function() {
         $.mobile.loading('hide');
         $('#itemsRemoveConfirm').popup('close');
       });
