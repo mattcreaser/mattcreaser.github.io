@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Power Ranks</title>
+
+    <link href="power_ranks.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <div id="output" class="container">
+    </div>
+
+    <script id="template" type="text/x-ractive-template">
+      <ul class="list-inline">
+      {{#weeks}}
+      <li class="{{this === week ? 'current' : ''}}">
+        <a href="#{{this}}" on-click="setWeek">{{this }}</a>
+      </li>
+      {{/weeks}}
+      </ul>
+
+      <div class="reorderable teams">
+      {{#teams:i}}
+        <div class="row team" decorator="sortable">
+          {{i + 1}}.
+          <strong>{{name}}</strong>
+          {{#if last !== null}}
+          <span class="details">(Last Week: {{last + 1}}, Change: {{change}}, High: {{high + 1}}, Low: {{low + 1}})</span>
+          {{/if}}
+          <div class="blurb" contenteditable="true" value="{{blurb}}">
+          </div>
+        </div>
+      {{/teams}}
+      </div>
+
+      <div class="btn btn-primary" on-click="save">Save</div>
+      <div class="btn btn-default" on-click="refresh">Update</div>
+    </script>
+
+
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdn.ractivejs.org/latest/ractive.js"></script>
+    <script src="ractive-decorators-sortable.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="power_ranks.js"></script>
+
+  </body>
+</html>

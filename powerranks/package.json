@@ -1,0 +1,11 @@
+{
+  "name": "powerranks",
+  "version": "0.0.0",
+  "description": "A simple tool to help me write power ranks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause"
+}
