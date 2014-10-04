@@ -23,11 +23,13 @@
       <div class="reorderable teams">
       {{#teams:i}}
         <div class="row team" decorator="sortable">
+          <br />
           {{i + 1}}.
           <strong>{{name}}</strong>
           {{#if last !== null}}
-          <span class="details">(Last Week: {{last + 1}}, Change: {{change}}, High: {{high + 1}}, Low: {{low + 1}})</span>
+          <span style="color: #888; font-style: italic;">(Last Week: {{last + 1}}, Change: {{change}}, High: {{high + 1}}, Low: {{low + 1}})</span>
           {{/if}}
+          <br />
           <div class="blurb" contenteditable="true" value="{{blurb}}">
           </div>
         </div>
@@ -36,6 +38,7 @@
 
       <div class="btn btn-primary" on-click="save">Save</div>
       <div class="btn btn-default" on-click="refresh">Update</div>
+	  <div class="btn btn-default" id="copy">Copy</div>
     </script>
 
 
@@ -44,6 +47,7 @@
     <script src="//cdn.ractivejs.org/latest/ractive.js"></script>
     <script src="ractive-decorators-sortable.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="jquery.zeroclipboard.min.js"></script>
     <script src="power_ranks.js"></script>
 
   </body>

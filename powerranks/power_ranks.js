@@ -59,6 +59,12 @@ function PowerRanks (opts) {
   this.ractive.on('save', this.save.bind(this));
   this.ractive.on('refresh', this.update.bind(this));
   this.ractive.on('setWeek', this.setWeek.bind(this));
+  
+  //$.event.special.copy.options = {
+    //autoConvertHtmlToRtf: true
+  //};
+  
+  $('body').on('copy', '#copy', this.copy.bind(this));
 }
 
 PowerRanks.prototype.update = function() {
@@ -113,4 +119,14 @@ PowerRanks.prototype.storeHistory = function() {
 PowerRanks.prototype.save = function(event) {
   this.storeHistory();
   localStorage.setItem('power_ranks', JSON.stringify(this.history));
+};
+
+PowerRanks.prototype.copy = function(/* ClipboardEvent */ e) {
+  var clone = $('.teams').clone();
+  clone.find('[contenteditable=true]').removeAttr('contenteditable');
+  var html = clone.html();
+  
+  e.clipboardData.clearData();
+  e.clipboardData.setData("text/html", html);
+  e.preventDefault();
 };
