@@ -102,6 +102,10 @@ PowerRanks.prototype.drawGraph = function(container) {
       tickInterval: 1,
       max: 13
     },
+    chart: {
+      width: 900,
+      height: 400
+    }
     /*
     colors: [
       'rgb(0, 0, 255)',      //Blue
