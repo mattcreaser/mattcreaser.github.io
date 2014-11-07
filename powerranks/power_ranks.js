@@ -7,7 +7,8 @@ $(function() {
     league: 'Halifax FF Friendly',
     teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'Oakley Brewers', 'Demolition', 'Myrden\'s Marauders', 'West Canaan Coyotes', 'Football Butt'],
     el: '#output',
-    template: '#template'
+    template: '#template',
+    graph: '#graph'
   });
 
   window.ranks = ranks;
@@ -60,12 +61,67 @@ function PowerRanks (opts) {
   this.ractive.on('refresh', this.update.bind(this));
   this.ractive.on('setWeek', this.setWeek.bind(this));
   
-  //$.event.special.copy.options = {
-    //autoConvertHtmlToRtf: true
-  //};
+  this.drawGraph(opts.graph);
   
   $('body').on('copy', '#copy', this.copy.bind(this));
 }
+
+PowerRanks.prototype.drawGraph = function(container) {
+  var series = _.map(this.teams, function(team) {
+    return { name: team.name, data: [] };
+  });
+  
+  _.forEach(this.history, function(data, team) {
+    _.forEach(data, function(data, week) {
+      _.find(series, { name: team }).data.push(data.rank + 1);
+    });
+  });
+  
+  _.sortBy(series, function(item) { return item.data[0]; });
+
+  var opts = {
+    title: { text: 'Halifax FF Friendly Power Ranks' },
+    series: series,
+    legend: {
+      layout: 'vertical',
+      align: 'left',
+      verticalAlign: 'middle',
+      itemMarginTop: 4,
+      itemMarginBottom: 4,
+      y: -6
+    },
+    yAxis: {
+      title: { text: 'Rank' },
+      reversed: true,
+      min: 1, max: 12,
+      tickInterval: 1,
+      opposite: true
+    },
+    xAxis: {
+      title: { text: 'Week' },
+      tickInterval: 1,
+      max: 13
+    },
+    /*
+    colors: [
+      'rgb(0, 0, 255)',      //Blue
+      'rgb(255, 0, 0)',      //Red
+      'rgb(0, 255, 0)',      //Green
+      'rgb(255, 255, 0)',    //Yellow
+      'rgb(255, 0, 255)',    //Magenta
+      'rgb(255, 128, 128)',  //Pink
+      'rgb(128, 128, 128)',  //Gray
+      'rgb(128, 0, 0)',      //Brown
+      'rgb(255, 128, 0)',    //Orange
+      'rgb(0,   0,   0)'     //Black
+    ]
+    */
+  };
+
+  console.log(opts);
+  
+  $(container).highcharts(opts);
+};
 
 PowerRanks.prototype.update = function() {
   this.teams.forEach(function(team, i) { team.rank = i; });
