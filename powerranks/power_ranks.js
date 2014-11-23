@@ -105,6 +105,9 @@ PowerRanks.prototype.drawGraph = function(container) {
     chart: {
       width: 900,
       height: 400
+    },
+    exporting: {
+      scale: 1
     }
     /*
     colors: [
