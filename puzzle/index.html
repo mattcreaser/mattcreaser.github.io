@@ -1,0 +1,61 @@
+<!doctype hmtl>
+<html>
+  <head>
+    <title>Impossible Escape</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <link href="puzzle.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="puzzle.js"></script>
+  </head>
+  <body>
+
+
+    <div class="container">
+      <div class="col-md-4">
+        <table id="board">
+
+        </table>
+      </div>
+      <div class="col-md-8">
+
+        <button class="btn btn-default" id="resetButton">Reset</button>
+        <div id="walkthrough">
+
+          <table>
+            <tr>
+              <td>
+                The natural parity of this board is:
+              </td>
+              <td id="parityBinary" class="binary">
+                <span id="parity0"></span><span id="parity1"></span><span id="parity2"></span><span id="parity3"></span><span id="parity4"></span><span id="parity5"></span>
+              </td>
+              <td>= <span id="decimalParity"></span> </td>
+            </tr>
+
+            <tbody id="step1">
+              <tr><td colspan="3">
+                  Click a square to select it as the target.
+              </td></tr>
+            </tbody>
+
+            <tbody id="step2">
+              <tr>
+                <td>The target square is:</td>
+                <td id="targetBinary" class="binary"></td>
+                <td>= <span id="targetDecimal"></span></td>
+              </tr>
+              <tr>
+                <td>You have to flip:</td>
+                <td id="toFlipBinary" class="binary"></td>
+                <td>= <span id="toFlipDecimal"></span></td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
