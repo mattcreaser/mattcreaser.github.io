@@ -5,7 +5,7 @@ $(function() {
 
   var ranks = new PowerRanks({
     league: 'Halifax FF Friendly',
-    teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'Oakley Brewers', 'Demolition', 'Myrden\'s Marauders', 'West Canaan Coyotes', 'Football Butt'],
+    teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'Oakley Brewers', 'Demolition', 'Myrden\'s Marauders', 'W. C. Coyotes', 'Questionable Content'],
     el: '#output',
     template: '#template',
     graph: '#graph'
@@ -60,9 +60,9 @@ function PowerRanks (opts) {
   this.ractive.on('save', this.save.bind(this));
   this.ractive.on('refresh', this.update.bind(this));
   this.ractive.on('setWeek', this.setWeek.bind(this));
-  
+
   this.drawGraph(opts.graph);
-  
+
   $('body').on('copy', '#copy', this.copy.bind(this));
 }
 
@@ -70,13 +70,13 @@ PowerRanks.prototype.drawGraph = function(container) {
   var series = _.map(this.teams, function(team) {
     return { name: team.name, data: [] };
   });
-  
+
   _.forEach(this.history, function(data, team) {
     _.forEach(data, function(data, week) {
       _.find(series, { name: team }).data.push(data.rank + 1);
     });
   });
-  
+
   _.sortBy(series, function(item) { return item.data[0]; });
 
   var opts = {
@@ -126,7 +126,7 @@ PowerRanks.prototype.drawGraph = function(container) {
   };
 
   console.log(opts);
-  
+
   $(container).highcharts(opts);
 };
 
@@ -188,7 +188,7 @@ PowerRanks.prototype.copy = function(/* ClipboardEvent */ e) {
   var clone = $('.teams').clone();
   clone.find('[contenteditable=true]').removeAttr('contenteditable');
   var html = clone.html();
-  
+
   e.clipboardData.clearData();
   e.clipboardData.setData("text/html", html);
   e.preventDefault();
