@@ -5,13 +5,18 @@ $(function() {
 
   var ranks = new PowerRanks({
     league: 'Halifax FF Friendly',
-    teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'Oakley Brewers', 'Demolition', 'Myrden\'s Marauders', 'W. C. Coyotes', 'Questionable Content'],
+    teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'The Other Guys', 'Demolition', 'Myrden\'s Marauders', 'W. C. Coyotes', 'Cotton\'sBoldStrategy'],
     el: '#output',
     template: '#template',
     graph: '#graph'
   });
 
   window.ranks = ranks;
+
+  if (window.location.hash) {
+    var week = parseInt(window.location.hash.substr(1), 10);
+    ranks.setWeek({ context: week });
+  }
 });
 
 function makeTeam (name, rank) {
@@ -125,7 +130,7 @@ PowerRanks.prototype.drawGraph = function(container) {
     */
   };
 
-  console.log(opts);
+  //console.log(opts);
 
   $(container).highcharts(opts);
 };

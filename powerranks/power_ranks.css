@@ -12,3 +12,8 @@
   margin-top: 25px;
 }
 
+
+.blurb  {
+  border: 1px solid #ddd;
+  min-height: 15px;
+}
