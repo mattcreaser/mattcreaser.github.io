@@ -5,7 +5,7 @@ $(function() {
 
   var ranks = new PowerRanks({
     league: 'Halifax FF Friendly',
-    teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'The Other Guys', 'Demolition', 'Myrden\'s Marauders', 'W. C. Coyotes', 'Cotton\'sBoldStrategy'],
+    teams: ['The Creasarions', 'Creaser\'s Crunchers', 'TeamDiscoveryChannel', 'The Mooks', 'Pocket Dogs', 'LIQUORPIGS', 'The Wildcats', 'The Bird Men', 'Demolition', 'Myrden\'s Marauders', 'W. C. Coyotes', 'Cotton\'sBoldStrategy'],
     el: '#output',
     template: '#template',
     graph: '#graph'
@@ -23,6 +23,7 @@ function makeTeam (name, rank) {
   return {
     name: name,
     rank: rank,
+    index: rank,
     blurb: '',
     last: null,
     change: null,
@@ -39,12 +40,24 @@ function PowerRanks (opts) {
   var item = localStorage.getItem('power_ranks');
   this.history = item ? JSON.parse(item) :
     _.reduce(this.teams, function(obj, team) {
-      obj[team.name] = [];
+      obj.teams.push(team.name);
       return obj;
-    }, {});
+    }, {
+      teams: [],
+      weeks: [],
+    });
+
+  // Dynamically set team names from stored data.
+  var self = this;
+  this.history.teams.forEach(function(teamName, i) {
+    self.teams[i].name = teamName;
+  });
 
   var weeks = [];
-  for (var i = 0; i < 14; ++i) { weeks.push(i); }
+  for (var i = 0; i < 14; ++i) { 
+    this.history.weeks[i] = this.history.weeks[i] || [];
+    weeks.push(i); 
+  }
 
   this.data = {
     teams: this.teams,
@@ -76,9 +89,10 @@ PowerRanks.prototype.drawGraph = function(container) {
     return { name: team.name, data: [] };
   });
 
-  _.forEach(this.history, function(data, team) {
-    _.forEach(data, function(data, week) {
-      _.find(series, { name: team }).data.push(data.rank + 1);
+  var self = this;
+  _.forEach(this.history.weeks, function(data, week) {
+    _.forEach(data, function(data, teamIndex) {
+      _.find(series, { name: self.history.teams[teamIndex] }).data.push(data.rank + 1);
     });
   });
 
@@ -114,20 +128,6 @@ PowerRanks.prototype.drawGraph = function(container) {
     exporting: {
       scale: 1
     }
-    /*
-    colors: [
-      'rgb(0, 0, 255)',      //Blue
-      'rgb(255, 0, 0)',      //Red
-      'rgb(0, 255, 0)',      //Green
-      'rgb(255, 255, 0)',    //Yellow
-      'rgb(255, 0, 255)',    //Magenta
-      'rgb(255, 128, 128)',  //Pink
-      'rgb(128, 128, 128)',  //Gray
-      'rgb(128, 0, 0)',      //Brown
-      'rgb(255, 128, 0)',    //Orange
-      'rgb(0,   0,   0)'     //Black
-    ]
-    */
   };
 
   //console.log(opts);
@@ -157,13 +157,14 @@ PowerRanks.prototype.updateTeams = function() {
   var week = this.data.week;
 
   this.teams.forEach(function(team, i) {
-    var teamHistory = self.history[team.name];
-    var history = teamHistory[week];
+    var history = self.history.weeks[week][team.index];
 
     team.rank = history ? history.rank : i;
     team.blurb = history ? history.blurb : team.blurb;
 
-    var priorHistory = week > 0 ? teamHistory[week - 1] : null;
+    if (week <= 0) { return; }
+
+    var priorHistory = self.history.weeks[week - 1][team.index];
     team.last = priorHistory && priorHistory.rank;
     team.change = priorHistory && team.last - team.rank;
 
@@ -171,16 +172,21 @@ PowerRanks.prototype.updateTeams = function() {
       team.change = '+' + team.change;
     }
 
-    var upto = teamHistory.slice(0, week + 1);
-    team.high = _.min(upto, 'rank').rank;
-    team.low = _.max(upto, 'rank').rank;
+    team.high = team.rank;
+    team.low = team.rank;
+    for(var j = 0; j < week; ++j) {
+      team.high = Math.min(team.high, self.history.weeks[j][team.index].rank);
+      team.low = Math.max(team.low, self.history.weeks[j][team.index].rank);
+    }
+    
   });
 };
 
 PowerRanks.prototype.storeHistory = function() {
   var self = this;
   this.teams.forEach(function(team, i) {
-    self.history[team.name][self.data.week] = { rank: i, blurb: team.blurb };
+    self.history.teams[team.index] = team.name;
+    self.history.weeks[self.data.week][team.index] = { rank: i, blurb: team.blurb };
   });
 };
 

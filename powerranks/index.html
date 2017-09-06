@@ -28,7 +28,7 @@
         <div class="row team" decorator="sortable">
           <br />
           {{i + 1}}.
-          <strong>{{name}}</strong>
+          <strong contenteditable="true" value="{{name}}"/>
           {{#if last !== null}}
           <span style="color: #888; font-style: italic;">(Last Week: {{last + 1}}, Change: {{change}}, High: {{high + 1}}, Low: {{low + 1}})</span>
           {{/if}}
