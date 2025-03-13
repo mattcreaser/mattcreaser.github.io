@@ -1,9 +1,24 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.amplify.test.magiclink",
-    "sha256_cert_fingerprints":
-    ["0C:3E:24:E9:26:79:CD:7E:82:A0:C9:65:A8:51:B2:BD:16:35:1D:DC:19:FE:EB:ED:6A:24:68:C7:2D:04:88:7E"]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.amplify.test.magiclink",
+      "sha256_cert_fingerprints":
+      ["0C:3E:24:E9:26:79:CD:7E:82:A0:C9:65:A8:51:B2:BD:16:35:1D:DC:19:FE:EB:ED:6A:24:68:C7:2D:04:88:7E"]
+    }
+  },
+  {
+    "relation" : [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target" : {
+      "namespace" : "android_app",
+      "package_name" : "com.amplifyframework.ui.sample.authenticator",
+      "sha256_cert_fingerprints" : [
+        "0C:3E:24:E9:26:79:CD:7E:82:A0:C9:65:A8:51:B2:BD:16:35:1D:DC:19:FE:EB:ED:6A:24:68:C7:2D:04:88:7E"
+      ]
+    }
   }
-}]
+]
