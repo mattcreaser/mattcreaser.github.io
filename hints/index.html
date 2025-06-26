@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The His & Hers Quest: Hints</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 2rem;
+    }
+    .section {
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .section[data-level="3"] {
+      padding: 0 1rem;
+    }
+    .section-title {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0.5rem 0.75rem;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
+      margin: 0 -1rem 0 -1rem;
+      border-bottom: 1px solid #d0d0d0;
+    }
+    .section-arrow {
+      display: inline-block;
+    }
+    /* Distinct background colors for each level */
+    .section[data-level="1"] > .section-title {
+      background: #1d451e;
+      color: #fff;
+    }
+    .section[data-level="2"] > .section-title {
+      background: #95a864;
+    }
+    .section[data-level="3"] > .section-title {
+      background: #787a92;
+    }
+    /* Remove arrow icon */
+    .section-title::before {
+      display: none;
+    }
+    .section-content {
+      display: none;
+      /* Remove indentation */
+      padding-left: 0;
+      padding-bottom: 0.5rem;
+    }
+    .section.expanded > .section-content {
+      display: block;
+    }
+    .carousel {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .carousel-item {
+      min-width: 200px;
+      min-height: 60px;
+      background: #b3b8ee;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      padding: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .carousel-controls {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .carousel button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .carousel button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    /* Remove border when expanded */
+    .section.expanded > .section-title {
+      border-bottom: none;
+    }
+    /* Responsive styles for mobile */
+    @media (max-width: 600px) {
+      body {
+        padding: 0.5rem;
+      }
+      .section[data-level="3"] {
+        padding: 0 0.5rem;
+      }
+      .section-title {
+        font-size: 1rem;
+        padding: 0.75rem 0.5rem;
+        margin: 0 -0.5rem 0 -0.5rem;
+      }
+      .carousel-item {
+        min-width: 0;
+        font-size: 1rem;
+        padding: 0.75rem;
+      }
+      .carousel-controls {
+        gap: 0.5rem;
+      }
+      .carousel button {
+        font-size: 0.95rem;
+        padding: 0.5rem 0.75rem;
+      }
+      .section {
+        border-radius: 4px;
+      }
+      .section-arrow {
+        font-size: 1.1em;
+      }
+      img[alt="Logo"] {
+        max-width: 120px !important;
+      }
+      h1 {
+        font-size: 1.3rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem;">
+    <img src="logo.png" alt="Logo" style="max-width: 200px; margin-bottom: 1rem; display: block;" />
+    <h1 style="margin: 0; text-align: center;">Hints</h1>
+  </div>
+  <div id="sections-root"></div>
+  <script>
+    // Example JSON data
+    const data = [
+      {
+        name: "Quest Line 1: Our History",
+        steps: [
+          {
+            name: "Step 1: First Spark",
+            hints: [
+              "Hint 1.1.1A",
+              "Hint 1.1.1B",
+              "Hint 1.1.1C"
+            ]
+          },
+          {
+            name: "Step 2: First Kiss",
+            hints: [
+              "Hint 1.2.1A",
+              "Hint 1.2.1B"
+            ]
+          },
+          {
+            name: "Step 3: I Love You",
+            hints: [
+              "Hint 1.2.1A",
+              "Hint 1.2.1B"
+            ]
+          },
+          {
+            name: "Step 4: Engagement",
+            hints: [
+              "Hint 1.2.1A",
+              "Hint 1.2.1B"
+            ]
+          }
+        ]
+      },
+      {
+        name: "Quest Line 2: Our Heroes",
+        steps: [
+          {
+            name: "Step 1: Indiana Jones",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          },
+          {
+            name: "Step 2: Cpt. Jean-Luc Picard",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          },
+          {
+            name: "Step 3: Buffy Summers",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          }
+        ]
+      },
+      {
+        name: "Quest Line 3: Our Hobbies",
+        steps: [
+          {
+            name: "Step 1: Travel",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          },
+          {
+            name: "Step 2: Running",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          },
+          {
+            name: "Step 3: Reading",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          },
+          {
+            name: "Step 4: Lego",
+            hints: [
+              "Hint 2.1.1A"
+            ]
+          }
+        ]
+      }
+    ];
+
+    function createCarousel(hints) {
+      const carousel = document.createElement('div');
+      carousel.className = 'carousel';
+      carousel.setAttribute('data-items', JSON.stringify(hints));
+
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'carousel-item';
+      carousel.appendChild(itemDiv);
+
+      const controls = document.createElement('div');
+      controls.className = 'carousel-controls';
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'prev';
+      prevBtn.textContent = 'Previous Hint';
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'next';
+      nextBtn.textContent = 'Next Hint';
+      controls.appendChild(prevBtn);
+      controls.appendChild(nextBtn);
+      carousel.appendChild(controls);
+
+      let current = 0;
+      function update() {
+        itemDiv.textContent = hints[current];
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === hints.length - 1;
+      }
+      prevBtn.addEventListener('click', () => {
+        if (current > 0) {
+          current--;
+          update();
+        }
+      });
+      nextBtn.addEventListener('click', () => {
+        if (current < hints.length - 1) {
+          current++;
+          update();
+        }
+      });
+      update();
+      return carousel;
+    }
+
+    function createSection(level, name, contentElement) {
+      const section = document.createElement('div');
+      section.className = 'section';
+      section.setAttribute('data-level', level);
+      const title = document.createElement('div');
+      title.className = 'section-title';
+      title.textContent = name;
+      // Add arrow span after the text
+      const arrow = document.createElement('span');
+      arrow.className = 'section-arrow';
+      arrow.textContent = '▶';
+      arrow.style.marginLeft = '0.5em';
+      title.appendChild(arrow);
+      section.appendChild(title);
+      if (contentElement) {
+        const content = document.createElement('div');
+        content.className = 'section-content';
+        content.appendChild(contentElement);
+        section.appendChild(content);
+      }
+      // Expand/collapse logic
+      title.addEventListener('click', function(e) {
+        if (e.target.closest('.carousel')) return;
+        section.classList.toggle('expanded');
+        // Update arrow
+        if (section.classList.contains('expanded')) {
+          arrow.textContent = '▼';
+        } else {
+          arrow.textContent = '▶';
+        }
+      });
+      // Set initial arrow state
+      arrow.textContent = section.classList.contains('expanded') ? '▼' : '▶';
+      return section;
+    }
+
+    function buildSections(data) {
+      const root = document.getElementById('sections-root');
+      data.forEach(sectionData => {
+        // Level 1
+        const stepsContainer = document.createElement('div');
+        sectionData.steps.forEach(step => {
+          // Level 2
+          const hintsCarousel = createCarousel(step.hints);
+          const stepSection = createSection(2, step.name, hintsCarousel);
+          stepsContainer.appendChild(stepSection);
+        });
+        const section = createSection(1, sectionData.name, stepsContainer);
+        root.appendChild(section);
+      });
+    }
+
+    buildSections(data);
+  </script>
+</body>
+</html> 
